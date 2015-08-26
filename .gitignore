@@ -3,6 +3,7 @@
 *.txt
 *.zip
 version
+pyborg.cfg
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
