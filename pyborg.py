@@ -11,12 +11,12 @@
 # modify it under the terms of the GNU General Public License
 # as published by the Free Software Foundation; either version 2
 # of the License, or (at your option) any later version.
-#        
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -42,8 +42,8 @@ def filter_message(message, bot):
 	padding ? and ! with ". " so they also terminate lines
 	and converting to lower case.
 	"""
-	
-	
+
+
 	# to lowercase
 	message = message.lower()
 
@@ -198,7 +198,7 @@ class pyborg:
 				self.settings.num_contexts = num_contexts
 				# Save new values
 				self.settings.save()
-				
+
 			# Is an aliases update required ?
 			compteur = 0
 			for x in self.settings.aliases.keys():
@@ -335,7 +335,7 @@ class pyborg:
 
 		# Filter out garbage and do some formatting
 		body = filter_message(body, self)
-	
+
 		# Learn from input
 		if learn == 1:
 			if self.settings.process_with == "pyborg":
@@ -377,7 +377,7 @@ class pyborg:
 			# else output
 			if owner==0: time.sleep(.2*len(message))
 			io_module.output(message, args)
-	
+
 	def do_commands(self, io_module, body, args, owner):
 		"""
 		Respond to user comands.
@@ -388,7 +388,7 @@ class pyborg:
 		command_list[0] = command_list[0].lower()
 
 		# Guest commands.
-	
+
 		# Version string
 		if command_list[0] == "!version":
 			msg = self.ver_string
@@ -403,7 +403,7 @@ class pyborg:
 			else:
 				num_cpw = 0.0
 			msg = "I know %d words (%d contexts, %.2f per word), %d lines." % (num_w, num_c, num_cpw, num_l)
-				
+
 		# Do i know this word
 		elif command_list[0] == "!known" and self.settings.process_with == "pyborg":
 			if len(command_list) == 2:
@@ -426,7 +426,7 @@ class pyborg:
 						msg += x+"/"+str(c)+" "
 					else:
 						msg += x+"/0 "
-	
+
 		# Owner commands
 		if owner == 1:
 			# Save dictionary
@@ -465,7 +465,7 @@ class pyborg:
 					self.settings.max_words = limit
 					msg += "now " + command_list[1]
 
-			
+
 			# Check for broken links in the dictionary
 			elif command_list[0] == "!checkdict" and self.settings.process_with == "pyborg":
 				t = time.time()
@@ -542,7 +542,7 @@ class pyborg:
 				c_max = int(c_max)
 
 				for w in self.words.keys():
-				
+
 					digit = 0
 					char = 0
 					for c in w:
@@ -551,7 +551,7 @@ class pyborg:
 						if c.isdigit():
 							digit += 1
 
-				
+
 				#Compte les mots inferieurs a cette limite
 					c = len(self.words[w])
 					if c < 2 or ( digit and char ):
@@ -572,7 +572,7 @@ class pyborg:
 				msg = "Purge dictionary in %0.2fs. %d words removed" % \
 						(time.time()-t,
 						compteur)
-				
+
 			# Change a typo in the dictionary
 			elif command_list[0] == "!replace" and self.settings.process_with == "pyborg":
 				if len(command_list) < 3:
@@ -723,11 +723,11 @@ class pyborg:
 				# Close the dictionary
 				self.save_all()
 				sys.exit()
-				
+
 			# Save changes
 			self.settings.save()
-	
-		if msg != "":	
+
+		if msg != "":
 			io_module.output(msg, args)
 
 	def replace(self, old, new):
@@ -819,7 +819,7 @@ class pyborg:
 
 		if len(words) == 0:
 			return ""
-		
+
 		#remove words on the ignore list
 		#words = filter((lambda x: x not in self.settings.ignore_list and not x.isdigit() ), words)
 		words = [x for x in words if x not in self.settings.ignore_list and not x.isdigit()]
@@ -886,7 +886,7 @@ class pyborg:
 			#Sort the words
 			liste = pre_words.items()
 			liste.sort(lambda x,y: cmp(y[1],x[1]))
-			
+
 			numbers = [liste[0][1]]
 			for x in xrange(1, len(liste) ):
 				numbers.append(liste[x][1] + numbers[x-1])
@@ -956,7 +956,7 @@ class pyborg:
 			liste = post_words.items()
 			liste.sort(lambda x,y: cmp(y[1],x[1]))
 			numbers = [liste[0][1]]
-			
+
 			for x in xrange(1, len(liste) ):
 				numbers.append(liste[x][1] + numbers[x-1])
 
@@ -989,7 +989,7 @@ class pyborg:
 			if sentence[x][0] == "~": sentence[x] = sentence[x][1:]
 
 		#Insert space between each words
-		map( (lambda x: sentence.insert(1+x*2, " ") ), xrange(0, len(sentence)-1) ) 
+		map( (lambda x: sentence.insert(1+x*2, " ") ), xrange(0, len(sentence)-1) )
 
 		#correct the ' & , spaces problem
 		#code is not very good and can be improve but does his job...
@@ -1069,15 +1069,15 @@ class pyborg:
 			# Check context isn't already known
 			if not self.lines.has_key(hashval):
 				if not(num_cpw > 100 and self.settings.learning == 0):
-					
+
 					self.lines[hashval] = [cleanbody, num_context]
 					# Add link for each word
 					for x in xrange(0, len(words)):
 						if self.words.has_key(words[x]):
 							# Add entry. (line number, word number)
-							self.words[words[x]].append(struct.pack("iH", hashval, x))
+							self.words[words[x]].append(struct.pack("lH", hashval, x))
 						else:
-							self.words[words[x]] = [ struct.pack("iH", hashval, x) ]
+							self.words[words[x]] = [ struct.pack("lH", hashval, x) ]
 							self.settings.num_words += 1
 						self.settings.num_contexts += 1
 			else :
