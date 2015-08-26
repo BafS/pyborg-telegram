@@ -1,3 +1,9 @@
+# Pyborg specific files
+*.dat
+*.txt
+*.zip
+version
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
