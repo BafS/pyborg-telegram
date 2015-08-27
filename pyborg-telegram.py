@@ -5,8 +5,7 @@ import re
 import sys
 import time
 import telebot
-import pyborg
-
+import lib.pyborg
 
 class PyborgTelegram:
 	def __init__(self, pyborg, args):
@@ -97,7 +96,7 @@ if __name__ == "__main__":
 		print
 		sys.exit(0)
 
-	my_pyborg = pyborg.pyborg()
+	my_pyborg = lib.pyborg.pyborg()
 	try:
 		PyborgTelegram(my_pyborg, sys.argv)
 	except (KeyboardInterrupt, SystemExit), e:
