@@ -2,51 +2,81 @@
 
 import string
 import sys
+import time
 import telebot
 import pyborg
 
 
-class Boty:
-	def __init__(self, boty, tg_bot):
+class PyborgTelegram:
+	def __init__(self, pyborg, tg_bot):
 		self.tg_bot = tg_bot
-		self.pyborg = boty
+		self.pyborg = pyborg
 		self.start()
 
-	def handle_messages(self, messages):
-		for message in messages:
-			self.last_message = message
-			name = message.from_user.first_name
-			# self.pyborg.process_msg(self, body, replyrate, learn, (body, source, target, c, e), owner=1)
-			self.pyborg.process_msg(self, message.text.encode('utf-8'), 100, 1, ( name ), owner=1)
-
 	def start(self):
-		self.tg_bot.set_update_listener(self.handle_messages)
+		self.tg_bot.set_update_listener(self.on_messages)
 		self.tg_bot.polling()
-		
+
+		print "__ PYBORG TELEGRAM __"
+
 		while 1:
 			try:
 				pass
 			except (KeyboardInterrupt, EOFError), e:
 				return
+			time.sleep(100)
+
+	def on_messages(self, messages):
+		for message in messages:
+			self.last_message = message
+			name = message.from_user.first_name
+			# self.pyborg.process_msg(self, body, replyrate, learn, (body, source, target, c, e), owner=1)
+
+			body = message.text.encode('utf-8')
+
+			if body == "":
+				1
+				# continue
+			if body[0] == "!":
+				1
+				# if self.linein_commands(body):
+					# continue
+			else :
+				self.pyborg.process_msg(self, body, 100, 1, ( name ), owner=1)
 
 	def output(self, message, args):
 		"""
 		Output a line of text.
 		"""
-		message = message.replace("#nick", args)
+		# message = message.replace("#nick", args)
+
+		message = message.replace(self.last_message.from_user.first_name.encode('utf-8'), args.encode('utf-8'))
 		print message
+		print args
 
 		self.tg_bot.reply_to(self.last_message, message)
 
 
 API_TOKEN = '109641816:AAEYM_Q3g-1twI-7iEtk3yCB2jzc8-5iqh0'
 
-telegram_bot = telebot.TeleBot(API_TOKEN)
+if __name__ == "__main__":
 
-my_pyborg = pyborg.pyborg()
-try:
-	Boty(my_pyborg, telegram_bot)
-except SystemExit:
-	pass
-my_pyborg.save_all()
-del my_pyborg
+	if "--help" in sys.argv:
+		print "Pyborg Telegram bot. Usage:"
+		# print " pyborg-telegram.py -t API_TOKEN [options]"
+		# print " -n   nickname"
+		# print "Defaults stored in pyborg-telegram.cfg"
+		print
+		sys.exit(0)
+
+	telegram_bot = telebot.TeleBot(API_TOKEN)
+
+	my_pyborg = pyborg.pyborg()
+	try:
+		PyborgTelegram(my_pyborg, telegram_bot)
+	except KeyboardInterrupt, e:
+		pass
+	except SystemExit:
+		pass
+	my_pyborg.save_all()
+	del my_pyborg
