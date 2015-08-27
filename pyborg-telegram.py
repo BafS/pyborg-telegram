@@ -37,17 +37,16 @@ class PyborgTelegram:
 				pass
 			except (KeyboardInterrupt, EOFError), e:
 				return
-			time.sleep(100)
+			time.sleep(150)
 
 	def on_messages(self, messages):
+		"""
+		Handle new messages
+		"""
 		for message in messages:
 			self.last_message = message
 			name = message.from_user.first_name
 			body = message.text.encode('utf-8')
-
-			# Replace the name of the bot by "#nick"
-			reg = re.compile(re.escape(self.infos.first_name), re.IGNORECASE)
-			body = reg.sub('#nick', body)
 
 			if body == "":
 				1
@@ -57,6 +56,12 @@ class PyborgTelegram:
 				# if self.linein_commands(body):
 					# continue
 			else :
+				# Replace the name of the bot by "#nick" (case insensitive)
+				reg = re.compile(re.escape(self.infos.first_name), re.IGNORECASE)
+
+				# Replace the username of the bot by "#nick"
+				body = body.replace('@' + self.infos.username.encode('utf-8'), '#nick')
+
 				# pyborg.process_msg(self, body, replyrate, learn, (body, source, target, c, e), owner=1)
 				self.pyborg.process_msg(self, body, 100, 1, ( name ), owner=1)
 
