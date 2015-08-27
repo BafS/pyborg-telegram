@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import string
+import re
 import sys
 import time
 import telebot
@@ -9,23 +10,27 @@ import pyborg
 
 class PyborgTelegram:
 	def __init__(self, pyborg, args):
+		API_TOKEN = ""
 		for x in xrange(1, len(args)):
 			if args[x] == "-t":
 				try:
 					API_TOKEN = args[x+1]
 				except IndexError:
-					print "! No API TOKEN specified (use -t arg)"
-					return
+					print "! API TOKEN is empty (-t arg)"
 
-		self.tg_bot = telebot.TeleBot(API_TOKEN)
-		self.pyborg = pyborg
-		self.start()
+		if(len(API_TOKEN) > 40):
+			self.tg_bot = telebot.TeleBot(API_TOKEN)
+			self.infos = self.tg_bot.get_me() # {'username': u'pybot_bot', 'first_name': u'boty', 'last_name': None, 'id': 109641816}
+			self.pyborg = pyborg
+			self.start()
+		else:
+			print "! No API TOKEN specified (use -t arg)"
 
 	def start(self):
 		self.tg_bot.set_update_listener(self.on_messages)
 		self.tg_bot.polling()
 
-		print "__ PYBORG TELEGRAM __"
+		print "\nPYBORG TELEGRAM\n"
 
 		while 1:
 			try:
@@ -57,7 +62,7 @@ class PyborgTelegram:
 		"""
 		Output a line of text.
 		"""
-		# message = message.replace("#nick", args)
+		message = message.replace("#nick", args)
 
 		message = message.replace(self.last_message.from_user.first_name.encode('utf-8'), args.encode('utf-8'))
 		print message
@@ -70,9 +75,7 @@ if __name__ == "__main__":
 
 	if "--help" in sys.argv:
 		print "Pyborg Telegram bot. Usage:"
-		print " pyborg-telegram.py -t API_TOKEN [options]"
-		# print " -n   nickname"
-		# print "Defaults stored in pyborg-telegram.cfg"
+		print " pyborg-telegram.py -t API_TOKEN"
 		print
 		sys.exit(0)
 
