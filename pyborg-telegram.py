@@ -85,7 +85,8 @@ class PyborgTelegram:
 		print message
 		print args
 
-		self.tg_bot.reply_to(self.last_message, message)
+		self.tg_bot.send_message(self.last_message.chat.id, message)
+		# self.tg_bot.reply_to(self.last_message, message)
 
 
 if __name__ == "__main__":
