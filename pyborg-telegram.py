@@ -59,14 +59,20 @@ class PyborgTelegram:
 
 				# Replace the name of the bot by "#nick" (case insensitive)
 				reg = re.compile(re.escape(self.infos.first_name), re.IGNORECASE)
+				body = reg.sub('#nick', body)
 
 				# Replace the username of the bot by "#nick"
 				body = body.replace('@' + self.infos.username.encode('utf-8'), '#nick')
+
+				print body
 
 				# pyborg.process_msg(self, body, replyrate, learn, (body, source, target, c, e), owner=1)
 				self.pyborg.process_msg(self, body, 100, 1, ( name ), owner=1)
 
 	def on_command(self, command):
+		"""
+		Handle commands
+		"""
 		print "CMD : " + command.text
 
 		body = command.text.encode('utf-8')
@@ -81,8 +87,7 @@ class PyborgTelegram:
 		message = message.replace("#nick", args)
 
 		message = message.replace(self.last_message.from_user.first_name.encode('utf-8'), args.encode('utf-8'))
-		print message
-		print args
+		print "> " + message
 
 		self.tg_bot.send_message(self.last_message.chat.id, message)
 		# self.tg_bot.reply_to(self.last_message, message)
