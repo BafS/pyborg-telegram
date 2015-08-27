@@ -34,7 +34,7 @@ import struct
 import time
 import zipfile
 import re
-from atomicfile import AtomicFile
+from ..atomicfile import AtomicFile
 
 
 def filter_message(message, bot):
