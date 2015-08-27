@@ -43,9 +43,11 @@ class PyborgTelegram:
 		for message in messages:
 			self.last_message = message
 			name = message.from_user.first_name
-			# self.pyborg.process_msg(self, body, replyrate, learn, (body, source, target, c, e), owner=1)
-
 			body = message.text.encode('utf-8')
+
+			# Replace the name of the bot by "#nick"
+			reg = re.compile(re.escape(self.infos.first_name), re.IGNORECASE)
+			body = reg.sub('#nick', body)
 
 			if body == "":
 				1
