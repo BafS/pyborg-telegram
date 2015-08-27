@@ -8,8 +8,16 @@ import pyborg
 
 
 class PyborgTelegram:
-	def __init__(self, pyborg, tg_bot):
-		self.tg_bot = tg_bot
+	def __init__(self, pyborg, args):
+		for x in xrange(1, len(args)):
+			if args[x] == "-t":
+				try:
+					API_TOKEN = args[x+1]
+				except IndexError:
+					print "! No API TOKEN specified (use -t arg)"
+					return
+
+		self.tg_bot = telebot.TeleBot(API_TOKEN)
 		self.pyborg = pyborg
 		self.start()
 
@@ -42,6 +50,7 @@ class PyborgTelegram:
 				# if self.linein_commands(body):
 					# continue
 			else :
+				# pyborg.process_msg(self, body, replyrate, learn, (body, source, target, c, e), owner=1)
 				self.pyborg.process_msg(self, body, 100, 1, ( name ), owner=1)
 
 	def output(self, message, args):
@@ -57,26 +66,20 @@ class PyborgTelegram:
 		self.tg_bot.reply_to(self.last_message, message)
 
 
-API_TOKEN = '109641816:AAEYM_Q3g-1twI-7iEtk3yCB2jzc8-5iqh0'
-
 if __name__ == "__main__":
 
 	if "--help" in sys.argv:
 		print "Pyborg Telegram bot. Usage:"
-		# print " pyborg-telegram.py -t API_TOKEN [options]"
+		print " pyborg-telegram.py -t API_TOKEN [options]"
 		# print " -n   nickname"
 		# print "Defaults stored in pyborg-telegram.cfg"
 		print
 		sys.exit(0)
 
-	telegram_bot = telebot.TeleBot(API_TOKEN)
-
 	my_pyborg = pyborg.pyborg()
 	try:
-		PyborgTelegram(my_pyborg, telegram_bot)
-	except KeyboardInterrupt, e:
-		pass
-	except SystemExit:
+		PyborgTelegram(my_pyborg, sys.argv)
+	except (KeyboardInterrupt, SystemExit), e:
 		pass
 	my_pyborg.save_all()
 	del my_pyborg
