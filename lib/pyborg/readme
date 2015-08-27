@@ -22,15 +22,6 @@
 # Tom Morton <tom@moretom.net>
 #
 
-
-#############################################################################
-
-This version has been customzed so all data and configuration is stored into data/
-To startup just run './start.sh'
-
-#############################################################################
-
-
 PyBorg 1.1.0 needs Python 1.5.2 or greater (www.python.org).
 The 'irclib' and 'ircbot' modules in the PyBorg archive were written by Joel
 Rosdahl (www.rosdahl.net). PyBorg has been tested on linux, windows and BSD
@@ -53,6 +44,7 @@ orders which are usable all the time:
     * !help: post the whole of the orders available
     * !version: post the version of the bot
     * !quit: leave the program
+    * !jump: reconnect to IRC
     * !save: safeguard the dictionary and the files of configuration
 
     * !words: post the number of words and sentences known
