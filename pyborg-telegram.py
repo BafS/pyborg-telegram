@@ -44,18 +44,20 @@ class PyborgTelegram:
 		Handle new messages
 		"""
 		for message in messages:
-			self.last_message = message
-			name = message.from_user.first_name
 			body = message.text.encode('utf-8')
 
 			if body == "":
 				1
 				# continue
-			if body[0] == "!":
-				1
+			if body[0] == "/":
+				self.on_command(message)
+					# continue
 				# if self.linein_commands(body):
 					# continue
 			else :
+				name = message.from_user.first_name
+				self.last_message = message
+
 				# Replace the name of the bot by "#nick" (case insensitive)
 				reg = re.compile(re.escape(self.infos.first_name), re.IGNORECASE)
 
@@ -64,6 +66,14 @@ class PyborgTelegram:
 
 				# pyborg.process_msg(self, body, replyrate, learn, (body, source, target, c, e), owner=1)
 				self.pyborg.process_msg(self, body, 100, 1, ( name ), owner=1)
+
+	def on_command(self, command):
+		print "CMD : " + command.text
+
+		body = command.text.encode('utf-8')
+		if(body == '/quit'):
+			sys.exit(0)
+			# raise SystemExit()
 
 	def output(self, message, args):
 		"""
