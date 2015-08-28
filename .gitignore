@@ -4,6 +4,7 @@
 *.zip
 version
 pyborg.cfg
+pyborg-telegram.cfg
 *.pyc
 *.swp
 data
