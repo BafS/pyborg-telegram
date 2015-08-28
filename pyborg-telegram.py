@@ -13,6 +13,21 @@ class PyborgTelegram:
     sleep_time = 150
 
     def __init__(self, pyborg, args):
+
+        self.settings = lib.pyborg.cfgfile.cfgset()
+        self.settings.load("pyborg-telegram.cfg",
+            {
+                  "owners": ("Owner(s) username", ["@myusername"]),
+                  "replyrate": ("Chance of reply (%) per message", 33),
+                  "api_token": ("Telegram API Token", "<API_TOKEN>"),
+                  "quitmsg": ("Quit message", "Bye :-(")
+            })
+
+        # Create useful variables.
+        self.owners = self.settings.owners[:]
+
+        print self.owners
+
         API_TOKEN = ""
         for x in range(1, len(args)):
             if args[x] == "-t":
@@ -81,7 +96,7 @@ class PyborgTelegram:
                 if not self.quiet: print body
 
                 # pyborg.process_msg(self, body, replyrate, learn, (body, source, target, c, e), owner=1)
-                self.pyborg.process_msg(self, body, 100, 1, ( name ), owner=1)
+                self.pyborg.process_msg(self, body, self.settings.replyrate, 1, ( name ), owner=1)
 
     def on_command(self, command):
         """
