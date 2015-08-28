@@ -11,22 +11,19 @@ import os
 class PyborgTelegram:
     quiet = None
     sleep_time = 150
+    talk = 1
 
     def __init__(self, pyborg, args):
 
         self.settings = lib.pyborg.cfgfile.cfgset()
         self.settings.load("pyborg-telegram.cfg",
             {
-                  "owners": ("Owner(s) username", ["@myusername"]),
+                  "owners": ("Owner(s) username (without the @)", ["myusername"]),
                   "replyrate": ("Chance of reply (%) per message", 33),
                   "api_token": ("Telegram API Token", "<API_TOKEN>"),
                   "quitmsg": ("Quit message", "Bye :-(")
             })
-
-        # Create useful variables.
         self.owners = self.settings.owners[:]
-
-        print self.owners
 
         for x in range(1, len(args)):
             if args[x] == "-T":
@@ -92,7 +89,7 @@ class PyborgTelegram:
                 if not self.quiet: print body
 
                 # pyborg.process_msg(self, body, replyrate, learn, (body, source, target, c, e), owner=1)
-                self.pyborg.process_msg(self, body, self.settings.replyrate, 1, ( name ), owner=1)
+                self.pyborg.process_msg(self, body, self.talk * self.settings.replyrate, 1, ( name ), owner=1)
 
     def on_command(self, command):
         """
@@ -100,10 +97,24 @@ class PyborgTelegram:
         """
         if not self.quiet: print "COMMAND: " + command.text
 
+        is_owner = message.from_user.username.encode('utf-8') in self.owners
+
         body = command.text.encode('utf-8')
-        if body == '/quit':
-            1
-            #os._exit(1)
+        rep = ""
+
+        if is_owner:
+            if body == '/bequiet':
+                self.talk = 0
+                rep = "I will stop talking :("
+            elif body == '/talk':
+                self.talk = 1
+                rep = "I will talk !"
+            elif body == '/quit':
+                sys.exit()
+                #os._exit(1)
+
+        if rep != "":
+            self.tg_bot.send_message(command.chat.id, rep)
 
     def output(self, message, args):
         """
