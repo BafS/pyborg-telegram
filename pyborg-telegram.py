@@ -6,105 +6,122 @@ import sys
 import time
 import telebot
 import lib.pyborg
+import os
 
 class PyborgTelegram:
-	def __init__(self, pyborg, args):
-		API_TOKEN = ""
-		for x in xrange(1, len(args)):
-			if args[x] == "-t":
-				try:
-					API_TOKEN = args[x+1]
-				except IndexError:
-					print "! API TOKEN is empty (-t arg)"
+    quiet = None
+    timeout = 150
 
-		if(len(API_TOKEN) > 40):
-			self.tg_bot = telebot.TeleBot(API_TOKEN)
-			self.infos = self.tg_bot.get_me() # {'username': u'pybot_bot', 'first_name': u'boty', 'last_name': None, 'id': 109641816}
-			self.pyborg = pyborg
-			self.start()
-		else:
-			print "! No API TOKEN specified (use -t arg)"
+    def __init__(self, pyborg, args):
+        API_TOKEN = ""
+        for x in range(1, len(args)):
+            if args[x] == "-t":
+                try:
+                    API_TOKEN = args[x+1]
+                except IndexError:
+                    if not self.quiet: print "! API TOKEN is empty (-t arg)"
+                    return
 
-	def start(self):
-		self.tg_bot.set_update_listener(self.on_messages)
-		self.tg_bot.polling()
+            elif args[x] == "-T":
+                try:
+                    if args[x+1].isdigit(): self.timeout = float(args[x+1])
+                except IndexError:
+                    if not self.quiet: print "Invalid timeout value, set to 150"
 
-		print "\nPYBORG TELEGRAM\n"
+            elif args[x] == "-q":
+                self.quiet = True
 
-		while 1:
-			try:
-				pass
-			except (KeyboardInterrupt, EOFError), e:
-				return
-			time.sleep(150)
+        if(len(API_TOKEN) > 40):
+            self.tg_bot = telebot.TeleBot(API_TOKEN)
+            self.infos = self.tg_bot.get_me() # {'username': u'pybot_bot', 'first_name': u'boty', 'last_name': None, 'id': 109641816}
+            self.pyborg = pyborg
+            self.start()
+        else:
+            if not self.quiet: print "! No API TOKEN specified (use -t arg)"
+            return
 
-	def on_messages(self, messages):
-		"""
-		Handle new messages
-		"""
-		for message in messages:
-			body = message.text.encode('utf-8')
+    def start(self):
+        self.tg_bot.set_update_listener(self.on_messages)
+        self.tg_bot.polling()
 
-			if body == "":
-				1
-				# continue
-			if body[0] == "/":
-				self.on_command(message)
-					# continue
-				# if self.linein_commands(body):
-					# continue
-			else :
-				name = message.from_user.first_name
-				self.last_message = message
+        if not self.quiet: print "\nPYBORG TELEGRAM\n" 
 
-				# Replace the name of the bot by "#nick" (case insensitive)
-				reg = re.compile(re.escape(self.infos.first_name), re.IGNORECASE)
-				body = reg.sub('#nick', body)
+        while 1:
+            try:
+                pass
+            except (KeyboardInterrupt, EOFError), e:
+                return
+            time.sleep(self.timeout)
 
-				# Replace the username of the bot by "#nick"
-				body = body.replace('@' + self.infos.username.encode('utf-8'), '#nick')
+    def on_messages(self, messages):
+        """
+        Handle new messages
+        """
+        for message in messages:
+            body = message.text.encode('utf-8')
 
-				print body
+            if body == "":
+                pass
+            elif body[0] == "/":
+                self.on_command(message)
+                        # continue
+                # if self.linein_commands(body):
+                        # continue
+            else :
+                name = message.from_user.first_name
+                self.last_message = message
 
-				# pyborg.process_msg(self, body, replyrate, learn, (body, source, target, c, e), owner=1)
-				self.pyborg.process_msg(self, body, 100, 1, ( name ), owner=1)
+                # Replace the name of the bot by "#nick" (case insensitive)
+                reg = re.compile(re.escape(self.infos.first_name), re.IGNORECASE)
+                body = reg.sub('#nick', body)
 
-	def on_command(self, command):
-		"""
-		Handle commands
-		"""
-		print "CMD : " + command.text
+                # Replace the username of the bot by "#nick"
+                body = body.replace('@' + self.infos.username.encode('utf-8'), '#nick')
 
-		body = command.text.encode('utf-8')
-		if(body == '/quit'):
-			sys.exit(0)
-			# raise SystemExit()
+                if not self.quiet: print body
 
-	def output(self, message, args):
-		"""
-		Output a line of text.
-		"""
-		message = message.replace("#nick", args)
+                # pyborg.process_msg(self, body, replyrate, learn, (body, source, target, c, e), owner=1)
+                self.pyborg.process_msg(self, body, 100, 1, ( name ), owner=1)
 
-		message = message.replace(self.last_message.from_user.first_name.encode('utf-8'), args.encode('utf-8'))
-		print "> " + message
+    def on_command(self, command):
+        """
+        Handle commands
+        """
+        if not self.quiet: print "CMD : " + command.text 
 
-		self.tg_bot.send_message(self.last_message.chat.id, message)
-		# self.tg_bot.reply_to(self.last_message, message)
+        body = command.text.encode('utf-8')
+        if body == '/quit':
+            1
+            #os._exit(1)
+
+    def output(self, message, args):
+        """
+        Output a line of text.
+        """
+        message = message.replace("#nick", args)
+
+        message = message.replace(self.last_message.from_user.first_name.encode('utf-8'), args.encode('utf-8'))
+        if not self.quiet: print "> " + message 
+
+        self.tg_bot.send_message(self.last_message.chat.id, message)
+        # self.tg_bot.reply_to(self.last_message, message)
 
 
 if __name__ == "__main__":
 
-	if "--help" in sys.argv:
-		print "Pyborg Telegram bot. Usage:"
-		print " pyborg-telegram.py -t API_TOKEN"
-		print
-		sys.exit(0)
+    if "--help" in sys.argv:
+        print "Pyborg Telegram bot. Usage:"
+        print " pyborg-telegram.py -t API_TOKEN"
+        print ""
+        print " -q               quiet mode"
+        print " -T               timeout (default 150ms)"
+        print
+        sys.exit(0)
 
-	my_pyborg = lib.pyborg.pyborg()
-	try:
-		PyborgTelegram(my_pyborg, sys.argv)
-	except (KeyboardInterrupt, SystemExit), e:
-		pass
-	my_pyborg.save_all()
-	del my_pyborg
+    my_pyborg = lib.pyborg.pyborg()
+    try:
+        PyborgTelegram(my_pyborg, sys.argv)
+    except (KeyboardInterrupt, SystemExit), e:
+        pass
+    my_pyborg.save_all()
+    del my_pyborg
