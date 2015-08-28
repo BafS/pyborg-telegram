@@ -10,7 +10,7 @@ import os
 
 class PyborgTelegram:
     quiet = None
-    timeout = 150
+    sleep_time = 150
 
     def __init__(self, pyborg, args):
         API_TOKEN = ""
@@ -24,14 +24,14 @@ class PyborgTelegram:
 
             elif args[x] == "-T":
                 try:
-                    if args[x+1].isdigit(): self.timeout = float(args[x+1])
+                    if args[x+1].isdigit(): self.sleep_time = float(args[x+1])
                 except IndexError:
-                    if not self.quiet: print "Invalid timeout value, set to 150"
+                    if not self.quiet: print "Invalid sleep_time value, set to 150"
 
             elif args[x] == "-q":
                 self.quiet = True
 
-        if(len(API_TOKEN) > 40):
+        if len(API_TOKEN) > 40:
             self.tg_bot = telebot.TeleBot(API_TOKEN)
             self.infos = self.tg_bot.get_me() # {'username': u'pybot_bot', 'first_name': u'boty', 'last_name': None, 'id': 109641816}
             self.pyborg = pyborg
@@ -44,14 +44,14 @@ class PyborgTelegram:
         self.tg_bot.set_update_listener(self.on_messages)
         self.tg_bot.polling()
 
-        if not self.quiet: print "\nPYBORG TELEGRAM\n" 
+        if not self.quiet: print "\nPYBORG TELEGRAM\n"
 
         while 1:
             try:
                 pass
             except (KeyboardInterrupt, EOFError), e:
                 return
-            time.sleep(self.timeout)
+            time.sleep(self.sleep_time)
 
     def on_messages(self, messages):
         """
@@ -87,7 +87,7 @@ class PyborgTelegram:
         """
         Handle commands
         """
-        if not self.quiet: print "CMD : " + command.text 
+        if not self.quiet: print "CMD : " + command.text
 
         body = command.text.encode('utf-8')
         if body == '/quit':
@@ -101,7 +101,7 @@ class PyborgTelegram:
         message = message.replace("#nick", args)
 
         message = message.replace(self.last_message.from_user.first_name.encode('utf-8'), args.encode('utf-8'))
-        if not self.quiet: print "> " + message 
+        if not self.quiet: print "> " + message
 
         self.tg_bot.send_message(self.last_message.chat.id, message)
         # self.tg_bot.reply_to(self.last_message, message)
@@ -114,7 +114,7 @@ if __name__ == "__main__":
         print " pyborg-telegram.py -t API_TOKEN"
         print ""
         print " -q               quiet mode"
-        print " -T               timeout (default 150ms)"
+        print " -T               sleep time between messages (default 150ms)"
         print
         sys.exit(0)
 

@@ -22,7 +22,7 @@
 #
 import string
 import os
-from lib.atomicfile import AtomicFile
+from ..atomicfile import AtomicFile
 
 def _load_config(filename):
     """
