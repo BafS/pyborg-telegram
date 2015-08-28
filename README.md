@@ -11,6 +11,12 @@ Pyborg port for telegram (work in progress)
 ## How to run
 
  - The first time you need to install [Telebot](https://github.com/leandrotoledo/python-telegram-bot) `pip install pyTelegramBotAPI`
- - `python pyborg-telegram.py -t API_TOKEN`
+ - Run `python pyborg-telegram.py`
+ - After the first run you can edit options in `pyborg-telegram.py`
 
-To quit you can do a `ctrl + C` in the console or `/quit` if you are the owner (TODO).
+
+### Commands
+
+ - To quit you can do a `ctrl + C` in the console or `/quit` if you are the owner.
+ - `/bequiet` the bot will stop talking
+ - `/talk` the bot will talk
