@@ -28,16 +28,8 @@ class PyborgTelegram:
 
         print self.owners
 
-        API_TOKEN = ""
         for x in range(1, len(args)):
-            if args[x] == "-t":
-                try:
-                    API_TOKEN = args[x+1]
-                except IndexError:
-                    if not self.quiet: print "! API TOKEN is empty (-t arg)"
-                    return
-
-            elif args[x] == "-T":
+            if args[x] == "-T":
                 try:
                     if args[x+1].isdigit(): self.sleep_time = float(args[x+1])
                 except IndexError:
@@ -46,13 +38,17 @@ class PyborgTelegram:
             elif args[x] == "-q":
                 self.quiet = True
 
-        if len(API_TOKEN) > 40:
-            self.tg_bot = telebot.TeleBot(API_TOKEN)
+        if self.settings.api_token is "<API_TOKEN>":
+            self.settings.api_token = raw_input("Enter Telegram API TOKEN > ")
+            self.settings.save()
+
+        if len(self.settings.api_token) > 40:
+            self.tg_bot = telebot.TeleBot(self.settings.api_token)
             self.infos = self.tg_bot.get_me() # {'username': u'pybot_bot', 'first_name': u'boty', 'last_name': None, 'id': 109641816}
             self.pyborg = pyborg
             self.start()
         else:
-            if not self.quiet: print "! No API TOKEN specified (use -t arg)"
+            if not self.quiet: print "api_token is not valid"
             return
 
     def start(self):
@@ -126,7 +122,7 @@ if __name__ == "__main__":
 
     if "--help" in sys.argv:
         print "Pyborg Telegram bot. Usage:"
-        print " pyborg-telegram.py -t API_TOKEN"
+        print " pyborg-telegram.py [options]"
         print ""
         print " -q               quiet mode"
         print " -T               sleep time between messages (default 150ms)"
