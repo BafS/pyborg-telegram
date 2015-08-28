@@ -102,7 +102,7 @@ class PyborgTelegram:
         """
         Handle commands
         """
-        if not self.quiet: print "CMD : " + command.text
+        if not self.quiet: print "COMMAND: " + command.text
 
         body = command.text.encode('utf-8')
         if body == '/quit':
@@ -113,7 +113,7 @@ class PyborgTelegram:
         """
         Output a line of text.
         """
-        message = message.replace("#nick", args)
+        message = message.replace("#nick", args.encode('utf-8'))
 
         message = message.replace(self.last_message.from_user.first_name.encode('utf-8'), args.encode('utf-8'))
         if not self.quiet: print "> " + message
