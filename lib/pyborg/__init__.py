@@ -34,7 +34,7 @@ import struct
 import time
 import zipfile
 import re
-from ..atomicfile import AtomicFile
+from atomicfile import AtomicFile
 
 
 def filter_message(message, bot):
@@ -891,6 +891,7 @@ class pyborg:
                 x += 1
                 if x >= len(liste) - 1:
                     mot = ''
+                    break
                 mot = liste[x][0]
 
             mot = mot.split(" ")
@@ -991,7 +992,8 @@ class pyborg:
         for x in xrange(0, len(sentence)):
             if sentence[x] == "'":
                 sentence[x - 1] = ""
-                sentence[x + 1] = ""
+                if x + 1 < len(sentence):
+                    sentence[x + 1] = ""
             for split_char in ['?', '!', ',']:
                 if sentence[x] == split_char:
                     sentence[x - 1] = ""
@@ -1015,7 +1017,7 @@ class pyborg:
             if len(words) < 1:
                 return
 
-            voyelles = "aÃ Ã¢eÃ©Ã¨ÃªiÃ®Ã¯oÃ¶Ã´uÃ¼Ã»y"
+            voyelles = "aÃ Ã¢eÃ©Ã¨ÃªiÃ®Ã¯oÃ¶Ã´uÃ¼Ã»yaAeEiIoOuUyY"
             for x in xrange(0, len(words)):
 
                 nb_voy = 0

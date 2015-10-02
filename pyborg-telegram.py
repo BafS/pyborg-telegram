@@ -7,13 +7,13 @@ import time
 import telebot
 import lib.pyborg
 import os
-#import thread
+from threading import Thread
 
 class PyborgTelegram:
     quiet = False
     sleep_time = 150
     talk = 1
-    treshold = 1 # in s
+    treshold = 3 # in s
 
     def __init__(self, pyborg, args):
 
@@ -56,41 +56,28 @@ class PyborgTelegram:
         self.tg_bot.set_update_listener(self.on_messages)
         self.tg_bot.polling()
 
-        #while 1:
-        #    try:
-        #        pass
-        #    except (KeyboardInterrupt, EOFError), e:
-        #        return
-        #    time.sleep(self.sleep_time)
-
     def on_messages(self, messages):
         '''
         Handle new messages
         '''
         for message in messages:
-            print message
             body = message.text.encode('utf-8')
 
             if not body:
                 pass
             elif body[0] == '/':
-                print int(time.time())
-                print message.date
-                print int(time.time()) - int(message.date)
                 if int(time.time()) - int(message.date) <= self.treshold:
                     self.on_command(message)
 
             else:
                 name = message.from_user.first_name
                 self.last_message = message
-                print name
                 
                 # Replace the name of the bot by '#nick' (case insensitive)
                 reg = re.compile(re.escape(self.infos.first_name), re.IGNORECASE)
                 body = reg.sub('#nick', body)
 
                 # Replace the username of the bot by '#nick'
-                print self.infos.username
                 body = body.replace('@' + self.infos.username.encode('utf-8'), '#nick')
 
                 if not self.quiet: print body
@@ -98,27 +85,42 @@ class PyborgTelegram:
                 # pyborg.process_msg(self, body, replyrate, learn, (body, source, target, c, e), owner=1)
                 source = ''
 
-                self.pyborg.process_msg(self, body, self.talk * self.settings.replyrate, 1, ( body, source, name ), owner=1)
-                #thread.start_new_thread(self.pyborg.process_msg, (self, body, self.talk * self.settings.replyrate, 1, ( body, source, name ), owner=1))
+                t = Thread(target=self.pyborg.process_msg, args=(self, body, self.talk * self.settings.replyrate, 1, ( name ), 1))
+                t.start()
 
     def on_command(self, message):
         '''
         Handle commands
         '''
+        rep = None
+
         if not self.quiet: print 'Command: ' + message.text
 
         is_owner = message.from_user.username.encode('utf-8') in self.owners
 
-        body = message.text.encode('utf-8')
+        words = message.text.split(' ')
+        command = words[0].encode('utf-8')
+        if len(words) > 1:
+            arg = words[1]
 
         if is_owner:
-            if body == '/bequiet':
+            if command == '/bequiet':
                 self.talk = 0
                 rep = 'I will stop talking :('
-            elif body == '/talk':
+            elif command == '/talk':
                 self.talk = 1
                 rep = 'I will talk !'
-            elif body == '/quit':
+            elif command == '/replyrate':
+                arg = int(arg)
+                if arg <= 100:
+                    if arg > self.settings.replyrate:
+                        rep = 'Yeeess, I will talk moar ! (' + str(arg) + '%)'
+                    elif arg < self.settings.replyrate:
+                        rep = 'Ok I will try to be less chatty (' + str(arg) + '%)'
+
+                    self.settings.replyrate = arg
+
+            elif command == '/quit':
                 self.pyborg.save_all()
                 os._exit(0)
 
@@ -133,7 +135,6 @@ class PyborgTelegram:
         Output a line of text.
         '''
 
-        print "OUTPUT"
         message = message.replace('#nick', args.encode('utf-8'))
 
         message = message.replace(self.last_message.from_user.first_name.encode('utf-8'), args.encode('utf-8'))
@@ -152,12 +153,12 @@ if __name__ == '__main__':
         print ' -q               quiet mode'
         print ' -T               sleep time between messages (default 150ms)'
         print
-        sys.exit(0)
 
-    my_pyborg = lib.pyborg.pyborg()
-    try:
-        PyborgTelegram(my_pyborg, sys.argv)
-    except (KeyboardInterrupt, SystemExit), e:
-        pass
-    my_pyborg.save_all()
-    del my_pyborg
+    else:
+        my_pyborg = lib.pyborg.pyborg()
+        try:
+            PyborgTelegram(my_pyborg, sys.argv)
+        except (KeyboardInterrupt, SystemExit), e:
+            pass
+        my_pyborg.save_all()
+        del my_pyborg
