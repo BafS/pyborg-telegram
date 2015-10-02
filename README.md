@@ -5,14 +5,16 @@ Pyborg port for telegram (work in progress)
 
 ## Require
 
- - Python 2.6+
+ - Python 2.7+ 
  - [Telegram Access Token key](https://telegram.me/botfather)
 
 ## How to run
 
+ - Be sure that you run all the installation with python2.7 (same for pip)
  - The first time you need to install [Telebot](https://github.com/leandrotoledo/python-telegram-bot) `pip install pyTelegramBotAPI`
+ - You will also need [atomicfile](https://github.com/facebookgo/atomicfile) `pip install atomicfile`
  - Run `python pyborg-telegram.py`
- - After the first run you can edit options in `pyborg-telegram.py`
+ - After the first run you can edit options in `pyborg-telegram.cfg`
 
 
 ### Commands
