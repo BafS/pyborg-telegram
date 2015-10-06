@@ -70,7 +70,7 @@ class PyborgTelegram:
             if not body:
                 pass
 
-            elif body[0] == '/':
+            elif body[0] == '/' or body[0] == '!':
                 if int(time.time()) - int(message.date) <= self.treshold:
                     self.on_command(message)
             else:
