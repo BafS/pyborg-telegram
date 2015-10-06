@@ -51,7 +51,7 @@ def filter_message(message, bot):
 
     # remove garbage
     message = message.replace("\"", "") # remove "s
-    message = message.replace("'", "") # remove 's
+    # message = message.replace("'", "") # remove 's
     message = message.replace("\n", " ") # remove newlines
     message = message.replace("\r", " ") # remove carriage returns
 
@@ -362,6 +362,8 @@ class pyborg:
             # else output
             if owner == 0:
                 time.sleep(.2 * len(message))
+
+
             io_module.output(message, args)
 
     def do_commands(self, io_module, body, args, owner):

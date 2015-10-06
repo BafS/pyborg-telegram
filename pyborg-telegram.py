@@ -11,7 +11,6 @@ from threading import Thread
 
 class PyborgTelegram:
     quiet = False
-    sleep_time = 150
     talk = 1
     treshold = 3 # in s
 
@@ -22,19 +21,14 @@ class PyborgTelegram:
             {
                   "owners": ("Owner(s) username (without the @)", ["myusername"]),
                   "replyrate": ("Chance of reply (%) per message", 33),
+                  "name": ("Name of the bot", "Boty"),
                   "api_token": ("Telegram API Token", "<API_TOKEN>"),
                   "quitmsg": ("Quit message", "Bye :-(")
             })
         self.owners = self.settings.owners[:]
 
         for x in range(1, len(args)):
-            if args[x] == '-T':
-                try:
-                    if args[x+1].isdigit(): self.sleep_time = float(args[x+1])
-                except IndexError:
-                    if not self.quiet: print 'Invalid sleep_time value, set to 150'
-
-            elif args[x] == '-q':
+            if args[x] == '-q':
                 self.quiet = True
 
         if self.settings.api_token is '<API_TOKEN>':
@@ -61,18 +55,28 @@ class PyborgTelegram:
         Handle new messages
         '''
         for message in messages:
-            body = message.text.encode('utf-8')
+
+            # Check if it's a text message
+            if hasattr(message, 'text'):
+                body = message.text.encode('utf-8')
+            else:
+                body = ''
 
             if not body:
                 pass
+
             elif body[0] == '/':
                 if int(time.time()) - int(message.date) <= self.treshold:
                     self.on_command(message)
-
             else:
+                if self.settings.name.lower() in message.text.lower():
+                    replyrate = 99
+                else:
+                    replyrate = self.settings.replyrate
+                    
                 name = message.from_user.first_name
                 self.last_message = message
-                
+
                 # Replace the name of the bot by '#nick' (case insensitive)
                 reg = re.compile(re.escape(self.infos.first_name), re.IGNORECASE)
                 body = reg.sub('#nick', body)
@@ -80,30 +84,36 @@ class PyborgTelegram:
                 # Replace the username of the bot by '#nick'
                 body = body.replace('@' + self.infos.username.encode('utf-8'), '#nick')
 
-                if not self.quiet: print body
+                if not self.quiet: print str(name) + ' : '  + str(body)
 
                 # pyborg.process_msg(self, body, replyrate, learn, (body, source, target, c, e), owner=1)
-                source = ''
-
-                t = Thread(target=self.pyborg.process_msg, args=(self, body, self.talk * self.settings.replyrate, 1, ( name ), 1))
+                
+                t = Thread(target=self.pyborg.process_msg, args=(self, body, self.talk * replyrate, 1, ( name ), 1))
                 t.start()
 
     def on_command(self, message):
         '''
         Handle commands
         '''
+        if not message or not message.text:
+            print "Encoding error" # add try
+            return
+
         rep = None
 
         if not self.quiet: print 'Command: ' + message.text
 
         is_owner = message.from_user.username.encode('utf-8') in self.owners
-
+    
+        
         words = message.text.split(' ')
         command = words[0].encode('utf-8')
         if len(words) > 1:
             arg = words[1]
 
         if is_owner:
+            if command == '/save':
+                self.pyborg.save_all()
             if command == '/bequiet':
                 self.talk = 0
                 rep = 'I will stop talking :('
