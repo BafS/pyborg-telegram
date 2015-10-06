@@ -8,6 +8,11 @@ import telebot
 import lib.pyborg
 import os
 from threading import Thread
+import sys  
+
+# fix utf8
+reload(sys)  
+sys.setdefaultencoding('utf8')
 
 class PyborgTelegram:
     quiet = False
@@ -69,7 +74,8 @@ class PyborgTelegram:
                 if int(time.time()) - int(message.date) <= self.treshold:
                     self.on_command(message)
             else:
-                if self.settings.name.lower() in message.text.lower():
+                pattern = re.compile(self.settings.name, re.IGNORECASE)
+                if pattern.match(message.text):
                     replyrate = 99
                 else:
                     replyrate = self.settings.replyrate
@@ -84,7 +90,7 @@ class PyborgTelegram:
                 # Replace the username of the bot by '#nick'
                 body = body.replace('@' + self.infos.username.encode('utf-8'), '#nick')
 
-                if not self.quiet: print str(name) + ' : '  + str(body)
+                if not self.quiet: print "{0} : {1}".format(name, body)
 
                 # pyborg.process_msg(self, body, replyrate, learn, (body, source, target, c, e), owner=1)
                 
