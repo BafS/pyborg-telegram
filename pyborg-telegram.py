@@ -32,6 +32,8 @@ class PyborgTelegram:
             })
         self.owners = self.settings.owners[:]
 
+        self.pyborg_cmd = [{'help'}, {'version': 1}, 'words', 'unlearn', '']
+
         for x in range(1, len(args)):
             if args[x] == '-q':
                 self.quiet = True
@@ -101,7 +103,7 @@ class PyborgTelegram:
         '''
         Handle commands
         '''
-        if not message or not message.text:
+        if not message or not message.text or not message.from_user or not message.from_user.username:
             print "Encoding error" # add try
             return
 
@@ -139,9 +141,11 @@ class PyborgTelegram:
             elif command == '/quit':
                 self.pyborg.save_all()
                 os._exit(0)
+            #elif command == '!': # TODO
+                
 
         else:
-                if not self.quiet: print message.from_user.username.encode('utf-8') + ' is not an owner'
+            if not self.quiet: print message.from_user.username.encode('utf-8') + ' is not an owner'
 
         if rep:
             self.tg_bot.send_message(message.chat.id, rep)
