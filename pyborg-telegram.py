@@ -32,7 +32,7 @@ class PyborgTelegram:
             })
         self.owners = self.settings.owners[:]
 
-        self.pyborg_cmd = [{'help'}, {'version': 1}, 'words', 'unlearn', '']
+        self.pyborg_cmd = ['help', 'version', 'words', 'unlearn', 'censor', 'alias', 'known', 'replace']
 
         for x in range(1, len(args)):
             if args[x] == '-q':
@@ -54,8 +54,12 @@ class PyborgTelegram:
     def start(self):
         if not self.quiet: print '\r\nPYBORG TELEGRAM\r\n'
 
-        self.tg_bot.set_update_listener(self.on_messages)
-        self.tg_bot.polling()
+        try:
+            self.tg_bot.set_update_listener(self.on_messages)
+            self.tg_bot.polling()
+        except:
+            print 'API err'
+            pass
 
     def on_messages(self, messages):
         '''
@@ -76,9 +80,9 @@ class PyborgTelegram:
                 if int(time.time()) - int(message.date) <= self.treshold:
                     self.on_command(message)
             else:
-                pattern = re.compile(self.settings.name, re.IGNORECASE)
-                if pattern.match(message.text):
-                    replyrate = 99
+                # Always reply if someone say his name
+                if self.settings.name.lower() in message.text.lower():
+                    replyrate = 100
                 else:
                     replyrate = self.settings.replyrate
                     
@@ -109,11 +113,10 @@ class PyborgTelegram:
 
         rep = None
 
-        if not self.quiet: print 'Command: ' + message.text
+        if not self.quiet: print 'Command: ' + message.text.encode('utf-8')
 
         is_owner = message.from_user.username.encode('utf-8') in self.owners
     
-        
         words = message.text.split(' ')
         command = words[0].encode('utf-8')
         if len(words) > 1:
@@ -141,27 +144,40 @@ class PyborgTelegram:
             elif command == '/quit':
                 self.pyborg.save_all()
                 os._exit(0)
-            #elif command == '!': # TODO
+            elif command[1:] in self.pyborg_cmd :
+                t = Thread(target=self.pyborg.process_msg, args=(self, message.text, 1, 1, ( '' ), 1))
+                t.start()
+
                 
 
         else:
             if not self.quiet: print message.from_user.username.encode('utf-8') + ' is not an owner'
 
         if rep:
-            self.tg_bot.send_message(message.chat.id, rep)
+            try:
+                self.tg_bot.send_message(message.chat.id, rep)
+            except e:
+                print '1'
+                print e
 
     def output(self, message, args):
         '''
         Output a line of text.
         '''
+        try:
+            message = message.replace('#nick', args.encode('utf-8'))
 
-        message = message.replace('#nick', args.encode('utf-8'))
+            message = message.replace(self.last_message.from_user.first_name.encode('utf-8'), args.encode('utf-8'))
+            if not self.quiet: print '> ' + message
+        except:
+            message = ''
 
-        message = message.replace(self.last_message.from_user.first_name.encode('utf-8'), args.encode('utf-8'))
-        if not self.quiet: print '> ' + message
-
-        self.tg_bot.send_message(self.last_message.chat.id, message)
-        # self.tg_bot.reply_to(self.last_message, message)
+        try:
+            self.tg_bot.send_message(self.last_message.chat.id, message)
+            # self.tg_bot.reply_to(self.last_message, message)
+        except e:
+            print e
+            pass
 
 
 if __name__ == '__main__':
